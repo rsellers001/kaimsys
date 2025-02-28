@@ -1,0 +1,8 @@
+{
+  "short_name": "Kaimsys",
+  "name": "Kaimsys - Transform Your Business with AI",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
