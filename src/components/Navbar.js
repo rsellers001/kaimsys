@@ -14,6 +14,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Logo } from './Logo';
 
 const navItems = [
   { text: 'Home', path: '/' },
@@ -47,20 +48,27 @@ function Navbar() {
 
   return (
     <>
-      <AppBar position="sticky" color="default" elevation={1}>
+      <AppBar 
+        position="sticky" 
+        sx={{
+          bgcolor: 'background.paper',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }} 
+        elevation={0}
+      >
         <Toolbar>
           <Box
             component={RouterLink}
             to="/"
             sx={{
               textDecoration: 'none',
-              color: 'primary.main',
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
               flexGrow: 1,
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            KAiM Systems
+            <Logo height={35} />
           </Box>
           {isMobile ? (
             <IconButton
@@ -78,7 +86,16 @@ function Navbar() {
                   key={item.text}
                   component={RouterLink}
                   to={item.path}
-                  sx={{ mx: 1 }}
+                  sx={{
+                    mx: 1,
+                    color: 'text.primary',
+                    '&:hover': {
+                      color: 'primary.main',
+                    },
+                    '&.active': {
+                      color: 'primary.main',
+                    }
+                  }}
                 >
                   {item.text}
                 </Button>
