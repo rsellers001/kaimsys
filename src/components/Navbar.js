@@ -60,7 +60,7 @@ function Navbar() {
               flexGrow: 1,
             }}
           >
-            Kaimsys
+            KAiM Systems
           </Box>
           {isMobile ? (
             <IconButton
