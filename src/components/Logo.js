@@ -5,7 +5,7 @@ export const Logo = ({ height = 40 }) => {
   return (
     <Box
       component="img"
-      src="/images/kaim-logo.svg"
+      src="/logo.png"
       alt="KAiM Systems"
       sx={{
         height: height,
