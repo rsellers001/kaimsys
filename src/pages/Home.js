@@ -28,13 +28,13 @@ function Home() {
               variant="h1"
               sx={{ mb: 3 }}
             >
-              Transform Your Business with AI
+              Welcome to KAiM Systems
             </MotionTypography>
             <MotionTypography
               variant="h5"
               sx={{ mb: 4, opacity: 0.9 }}
             >
-              Harness the power of artificial intelligence to drive growth and innovation
+              Empowering businesses with intelligent solutions for tomorrow's challenges
             </MotionTypography>
             <Button
               variant="contained"
@@ -60,16 +60,16 @@ function Home() {
         <Grid container spacing={4}>
           {[
             {
-              title: 'AI Solutions',
-              description: 'Custom AI solutions tailored to your business needs'
+              title: 'AI Consulting',
+              description: 'Strategic AI implementation and digital transformation guidance'
             },
             {
-              title: 'Data Analytics',
-              description: 'Transform your data into actionable insights'
+              title: 'Custom Solutions',
+              description: 'Tailored AI and automation solutions for your specific needs'
             },
             {
-              title: 'Process Automation',
-              description: 'Streamline operations with intelligent automation'
+              title: 'Integration Services',
+              description: 'Seamless integration of AI systems with your existing infrastructure'
             }
           ].map((service, index) => (
             <Grid item xs={12} md={4} key={service.title}>
