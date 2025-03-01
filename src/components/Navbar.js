@@ -20,6 +20,7 @@ const navItems = [
   { text: 'Home', path: '/' },
   { text: 'About', path: '/about' },
   { text: 'Services', path: '/services' },
+  { text: 'Compliance AI', path: '/compliance-assistant' },
 ];
 
 function Navbar() {
@@ -68,7 +69,7 @@ function Navbar() {
               alignItems: 'center',
             }}
           >
-            <Logo height={35} />
+            <Logo height={180} />
           </Box>
           {isMobile ? (
             <IconButton

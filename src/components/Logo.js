@@ -21,7 +21,7 @@ const KaimLogo = (props) => (
   </SvgIcon>
 );
 
-export const Logo = ({ height = 40 }) => {
+export const Logo = ({ height = 180 }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <KaimLogo
@@ -37,9 +37,9 @@ export const Logo = ({ height = 40 }) => {
       <Box
         sx={{
           color: 'primary.main',
-          fontSize: '1.5rem',
+          fontSize: '4rem',
           fontWeight: 'bold',
-          ml: 2
+          ml: 3
         }}
       >
         Systems
