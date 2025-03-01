@@ -19,7 +19,6 @@ import {
   Snackbar,
 } from '@mui/material';
 import axios from 'axios';
-import config from '../config';
 import SendIcon from '@mui/icons-material/Send';
 
 const STANDARDS = [
@@ -64,43 +63,63 @@ const ComplianceChat = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${config.apiUrl}/api/chat`, {
-        message: input,
-        primaryStandard,
-        secondaryStandard,
-      });
-
-      const newMessage = {
-        role: 'assistant',
-        content: response.data.response,
-        id: Date.now().toString(),
-      };
+      // Simulate an API response since we can't deploy the backend right now
+      // In a real implementation, this would call the OpenAI API
+      setTimeout(() => {
+        const standardsInfo = {
+          nist: "NIST 800.53 provides security controls for federal information systems.",
+          cobit: "COBIT is a framework for IT governance and management.",
+          sox: "Sarbanes-Oxley Act (SOX) regulates financial reporting for public companies.",
+          gdpr: "GDPR is a regulation for data protection and privacy in the EU."
+        };
+        
+        // Simple demo response based on selected standards
+        let responseContent = `Based on ${STANDARDS.find(s => s.id === primaryStandard)?.name}`;
+        if (secondaryStandard) {
+          responseContent += ` and ${STANDARDS.find(s => s.id === secondaryStandard)?.name}`;
+        }
+        
+        responseContent += ": \n\n";
+        responseContent += standardsInfo[primaryStandard];
+        
+        if (secondaryStandard && standardsInfo[secondaryStandard]) {
+          responseContent += "\n\nIn relation to the secondary standard: \n";
+          responseContent += standardsInfo[secondaryStandard];
+        }
+        
+        responseContent += "\n\nFor more specific information about your question, please consult the official documentation.";
+        
+        const newMessage = {
+          role: 'assistant',
+          content: responseContent,
+          id: Date.now().toString(),
+        };
+        
+        setMessages(prevMessages => {
+          const updatedMessages = [...prevMessages, newMessage];
+          localStorage.setItem('chatHistory', JSON.stringify(updatedMessages));
+          return updatedMessages;
+        });
+  
+        setFeedback({ open: true, chatId: newMessage.id });
+        setLoading(false);
+      }, 1500); // Simulate API delay
       
-      setMessages(prevMessages => {
-        const updatedMessages = [...prevMessages, newMessage];
-        localStorage.setItem('chatHistory', JSON.stringify(updatedMessages));
-        return updatedMessages;
-      });
-
-      setFeedback({ open: true, chatId: newMessage.id });
     } catch (error) {
       console.error('Error:', error);
-      setError(error.response?.data?.error || 'An error occurred while processing your request');
+      setError('An error occurred while processing your request');
+      setLoading(false);
     }
-
-    setLoading(false);
   };
   };
 
-  const handleFeedback = async (chatId, rating) => {
-    try {
-      await axios.post(`${config.apiUrl}/api/feedback`, {
-        chatId,
-        rating,
-      });
-    } catch (error) {
-      console.error('Feedback error:', error);
-    }
+  const handleFeedback = (chatId, rating) => {
+    // Store feedback locally since we don't have a backend currently
+    const feedbacks = JSON.parse(localStorage.getItem('feedback') || '{}');
+    feedbacks[chatId] = { rating, timestamp: new Date().toISOString() };
+    localStorage.setItem('feedback', JSON.stringify(feedbacks));
+    
+    console.log(`Feedback saved: ${chatId} rated ${rating}/5`);
     setFeedback({ open: false, chatId: null });
   };
 
