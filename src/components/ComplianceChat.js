@@ -18,9 +18,9 @@ import {
   Rating,
   Snackbar,
 } from '@mui/material';
-import axios from 'axios';
 import SendIcon from '@mui/icons-material/Send';
 
+// Simple demo standards
 const STANDARDS = [
   { id: 'nist', name: 'NIST 800.53' },
   { id: 'cobit', name: 'COBIT' },
@@ -28,99 +28,150 @@ const STANDARDS = [
   { id: 'gdpr', name: 'GDPR' },
 ];
 
+// Demo responses for each standard
+const STANDARD_INFO = {
+  nist: {
+    title: "NIST 800.53",
+    description: "Provides security and privacy controls for federal information systems and organizations.",
+    responses: [
+      "NIST 800.53 organizes security controls into 20 families, each focused on a specific aspect of security.",
+      "Access Control (AC) in NIST 800.53 focuses on limiting system access to authorized users and processes.",
+      "Audit and Accountability (AU) controls ensure that actions within systems can be traced to individuals.",
+      "Configuration Management (CM) establishes baseline configurations and inventories of systems."
+    ]
+  },
+  cobit: {
+    title: "COBIT",
+    description: "A framework created by ISACA for IT governance and management.",
+    responses: [
+      "COBIT 2019 is organized around 40 governance and management objectives.",
+      "COBIT helps organizations optimize information and technology governance.",
+      "The COBIT framework addresses the governance and management of information and technology.",
+      "COBIT provides metrics and maturity models to measure the achievement of IT governance objectives."
+    ]
+  },
+  sox: {
+    title: "SOX",
+    description: "The Sarbanes-Oxley Act regulates financial practice and corporate governance.",
+    responses: [
+      "SOX Section 404 requires management to assess internal controls over financial reporting.",
+      "SOX was enacted in 2002 to protect investors from fraudulent financial reporting.",
+      "SOX compliance requires establishing internal controls and reporting procedures.",
+      "The Public Company Accounting Oversight Board (PCAOB) oversees SOX implementation."
+    ]
+  },
+  gdpr: {
+    title: "GDPR",
+    description: "EU regulation on data protection and privacy for individuals within the EU.",
+    responses: [
+      "GDPR gives individuals control over their personal data through various rights.",
+      "GDPR requires organizations to implement privacy by design and by default.",
+      "Organizations must report data breaches within 72 hours under GDPR.",
+      "GDPR fines can reach up to 4% of annual global turnover or €20 million, whichever is higher."
+    ]
+  }
+};
+
 const ComplianceChat = () => {
+  // State management
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [primaryStandard, setPrimaryStandard] = useState('');
   const [secondaryStandard, setSecondaryStandard] = useState('');
-  const [feedback, setFeedback] = useState({ open: false, chatId: null });
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   
+  // Load saved messages on initial render
   useEffect(() => {
-    // Load chat history from localStorage
-    const savedMessages = localStorage.getItem('chatHistory');
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
+    try {
+      const savedMessages = localStorage.getItem('complianceChatHistory');
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } catch (e) {
+      console.error('Error loading chat history:', e);
     }
   }, []);
 
-  const handleSend = async () => {
+  const handleSend = () => {
+    // Validate input
     if (!input.trim() || !primaryStandard) {
       setError('Please enter a message and select a primary standard');
       return;
     }
 
+    // Add user message
     const userMessage = {
       role: 'user',
       content: input,
-      standards: { primary: primaryStandard, secondary: secondaryStandard },
+      standards: { 
+        primary: STANDARD_INFO[primaryStandard]?.title, 
+        secondary: secondaryStandard ? STANDARD_INFO[secondaryStandard]?.title : null 
+      },
+      timestamp: new Date().toISOString()
     };
 
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
     setError(null);
 
-    try {
-      // Simulate an API response since we can't deploy the backend right now
-      // In a real implementation, this would call the OpenAI API
-      setTimeout(() => {
-        const standardsInfo = {
-          nist: "NIST 800.53 provides security controls for federal information systems.",
-          cobit: "COBIT is a framework for IT governance and management.",
-          sox: "Sarbanes-Oxley Act (SOX) regulates financial reporting for public companies.",
-          gdpr: "GDPR is a regulation for data protection and privacy in the EU."
-        };
-        
-        // Simple demo response based on selected standards
-        let responseContent = `Based on ${STANDARDS.find(s => s.id === primaryStandard)?.name}`;
-        if (secondaryStandard) {
-          responseContent += ` and ${STANDARDS.find(s => s.id === secondaryStandard)?.name}`;
-        }
-        
-        responseContent += ": \n\n";
-        responseContent += standardsInfo[primaryStandard];
-        
-        if (secondaryStandard && standardsInfo[secondaryStandard]) {
-          responseContent += "\n\nIn relation to the secondary standard: \n";
-          responseContent += standardsInfo[secondaryStandard];
-        }
-        
-        responseContent += "\n\nFor more specific information about your question, please consult the official documentation.";
-        
-        const newMessage = {
-          role: 'assistant',
-          content: responseContent,
-          id: Date.now().toString(),
-        };
-        
-        setMessages(prevMessages => {
-          const updatedMessages = [...prevMessages, newMessage];
-          localStorage.setItem('chatHistory', JSON.stringify(updatedMessages));
-          return updatedMessages;
-        });
-  
-        setFeedback({ open: true, chatId: newMessage.id });
-        setLoading(false);
-      }, 1500); // Simulate API delay
+    // Simulate response after delay
+    setTimeout(() => {
+      // Generate simple demo response
+      const primaryInfo = STANDARD_INFO[primaryStandard];
+      const secondaryInfo = secondaryStandard ? STANDARD_INFO[secondaryStandard] : null;
       
-    } catch (error) {
-      console.error('Error:', error);
-      setError('An error occurred while processing your request');
+      // Pick a random response from the standard's prepared responses
+      const randomPrimaryResponse = primaryInfo.responses[
+        Math.floor(Math.random() * primaryInfo.responses.length)
+      ];
+      
+      let responseText = `${primaryInfo.description}\n\n${randomPrimaryResponse}`;
+      
+      if (secondaryInfo) {
+        const randomSecondaryResponse = secondaryInfo.responses[
+          Math.floor(Math.random() * secondaryInfo.responses.length)
+        ];
+        
+        responseText += `\n\nRegarding ${secondaryInfo.title}: ${randomSecondaryResponse}`;
+      }
+      
+      // Add the AI response
+      const aiMessage = {
+        role: 'assistant',
+        content: responseText,
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => {
+        const updatedMessages = [...prev, aiMessage];
+        // Save to localStorage
+        try {
+          localStorage.setItem('complianceChatHistory', JSON.stringify(updatedMessages));
+        } catch (e) {
+          console.error('Error saving chat history:', e);
+        }
+        return updatedMessages;
+      });
+      
       setLoading(false);
-    }
-  };
+      setFeedbackOpen(true);
+    }, 1000);
   };
 
-  const handleFeedback = (chatId, rating) => {
-    // Store feedback locally since we don't have a backend currently
-    const feedbacks = JSON.parse(localStorage.getItem('feedback') || '{}');
-    feedbacks[chatId] = { rating, timestamp: new Date().toISOString() };
-    localStorage.setItem('feedback', JSON.stringify(feedbacks));
-    
-    console.log(`Feedback saved: ${chatId} rated ${rating}/5`);
-    setFeedback({ open: false, chatId: null });
+  const handleFeedback = (rating) => {
+    // Simply log feedback in console and close dialog
+    console.log(`User rated response: ${rating}/5`);
+    setFeedbackOpen(false);
+  };
+  
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -224,12 +275,7 @@ const ComplianceChat = () => {
             placeholder="Ask about compliance standards..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
+            onKeyPress={handleKeyPress}
             multiline
             maxRows={4}
             disabled={loading}
@@ -246,9 +292,9 @@ const ComplianceChat = () => {
         </Box>
 
         <Snackbar
-          open={feedback.open}
+          open={feedbackOpen}
           autoHideDuration={10000}
-          onClose={() => setFeedback({ open: false, chatId: null })}
+          onClose={() => setFeedbackOpen(false)}
         >
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
@@ -257,7 +303,7 @@ const ComplianceChat = () => {
             <Rating
               name="feedback"
               onChange={(event, newValue) => {
-                handleFeedback(feedback.chatId, newValue);
+                handleFeedback(newValue);
               }}
             />
           </Paper>
