@@ -5,6 +5,12 @@ applications:
         preBuild:
           commands:
             - npm install
+            - echo "Setting up server dependencies..."
+            - cd server && npm install && cd ..
+            - echo "Creating .env file for server..."
+            - echo "PORT=3001" > server/.env
+            - echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> server/.env
+            - echo "JWT_SECRET=$JWT_SECRET" >> server/.env
         build:
           commands:
             - npm run build
@@ -12,24 +18,9 @@ applications:
         baseDirectory: build
         files:
           - '**/*'
+        discard-paths: yes
       cache:
         paths:
           - node_modules/**/*
-    appRoot: /
-  - backend:
-      phases:
-        build:
-          commands:
-            - cd server
-            - npm install
-            - echo "Setting up environment variables..."
-            - echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
-            - echo "REDIS_URL=$REDIS_URL" >> .env
-            - echo "JWT_SECRET=$JWT_SECRET" >> .env
-      artifacts:
-        baseDirectory: server
-        files:
-          - '**/*'
-      cache:
-        paths:
           - server/node_modules/**/*
+    appRoot: /

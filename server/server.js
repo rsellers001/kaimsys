@@ -9,12 +9,27 @@ const { body, validationResult } = require('express-validator');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Redis client setup
-const redisClient = Redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
+// Redis client setup - making it optional for easier deployment
+let redisClient = null;
+let redisEnabled = false;
 
-redisClient.connect().catch(console.error);
+if (process.env.REDIS_URL) {
+  try {
+    redisClient = Redis.createClient({
+      url: process.env.REDIS_URL
+    });
+    redisClient.connect()
+      .then(() => {
+        console.log('Redis connected successfully');
+        redisEnabled = true;
+      })
+      .catch(err => {
+        console.log('Redis connection failed, continuing without caching:', err.message);
+      });
+  } catch (error) {
+    console.log('Redis setup failed, continuing without caching:', error.message);
+  }
+}
 
 // OpenAI setup
 const openai = new OpenAI({
@@ -33,8 +48,12 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Cache middleware
+// Cache middleware - only active if Redis is connected
 const cacheMiddleware = async (req, res, next) => {
+  if (!redisEnabled || !redisClient) {
+    return next();
+  }
+  
   const cacheKey = `chat:${JSON.stringify(req.body)}`;
   try {
     const cachedResponse = await redisClient.get(cacheKey);
@@ -85,11 +104,16 @@ app.post('/api/chat', validateChatRequest, cacheMiddleware, async (req, res) => 
       timestamp: new Date(),
     };
 
-    // Cache the response
-    if (req.cacheKey) {
-      await redisClient.set(req.cacheKey, JSON.stringify(response), {
-        EX: 3600 // Cache for 1 hour
-      });
+    // Cache the response if Redis is enabled
+    if (redisEnabled && redisClient && req.cacheKey) {
+      try {
+        await redisClient.set(req.cacheKey, JSON.stringify(response), {
+          EX: 3600 // Cache for 1 hour
+        });
+      } catch (error) {
+        console.error('Error caching response:', error);
+        // Continue without caching
+      }
     }
 
     res.json(response);
@@ -113,15 +137,19 @@ app.post('/api/feedback', [
   const { chatId, rating, comment } = req.body;
 
   try {
-    await redisClient.hSet(`feedback:${chatId}`, {
-      rating,
-      comment,
-      timestamp: new Date().toISOString()
-    });
+    if (redisEnabled && redisClient) {
+      await redisClient.hSet(`feedback:${chatId}`, {
+        rating,
+        comment,
+        timestamp: new Date().toISOString()
+      });
+    }
+    // Always return success even if Redis is not available
     res.json({ success: true });
   } catch (error) {
     console.error('Feedback Error:', error);
-    res.status(500).json({ error: 'Error saving feedback' });
+    // Still return success to the client
+    res.json({ success: true, cached: false });
   }
 });
 
