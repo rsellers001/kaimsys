@@ -248,6 +248,10 @@
     </div>
 
     <script>
+      // Global variables
+      let simulationMode = true; // Set to true to use simulated responses
+      let currentThreadId = null;
+      
       // DOM elements
       const messageInput = document.getElementById('message-input');
       const sendButton = document.getElementById('send-button');
@@ -255,6 +259,7 @@
       const errorMessage = document.getElementById('error-message');
       const feedbackDialog = document.getElementById('feedback-dialog');
       const stars = document.querySelectorAll('.star');
+      const serverStatus = document.getElementById('serverStatus');
 
       // Load chat history from localStorage
       let messages = [];
@@ -332,11 +337,47 @@
 
         try {
           // Update server status
-          const serverStatus = document.getElementById('serverStatus');
           serverStatus.className = 'server-status warning';
           serverStatus.textContent = '⚠️ Connecting to server...';
           
-          // Call the backend API with the OpenAI Assistant
+          // Check if simulation mode is enabled
+          if (simulationMode) {
+            // Simulate a server response with a delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Update status to indicate simulation mode
+            serverStatus.className = 'server-status warning';
+            serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
+            
+            // Generate a simulated response
+            const simulatedResponse = generateSimulatedResponse(input);
+            
+            // Add the AI response
+            const aiMessage = {
+              role: 'assistant',
+              content: simulatedResponse,
+              timestamp: new Date().toISOString()
+            };
+            
+            messages.push(aiMessage);
+            
+            // Save to localStorage
+            try {
+              localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
+            } catch (e) {
+              console.error('Error saving chat history:', e);
+            }
+            
+            renderChatHistory();
+            if (sendButton) {
+              sendButton.disabled = false;
+              sendButton.innerHTML = '<span class="material-icons">send</span>';
+            }
+            
+            return;
+          }
+          
+          // If not in simulation mode, try to call the real backend API
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -473,6 +514,35 @@
 
       // Initialize send button state
       updateSendButtonState();
+      
+      // Function to generate simulated responses
+      function generateSimulatedResponse(userMessage) {
+        const userMessageLower = userMessage.toLowerCase();
+        
+        // Check for common compliance-related keywords and generate appropriate responses
+        if (userMessageLower.includes('nist') || userMessageLower.includes('800-53')) {
+          return "NIST Special Publication 800-53 provides a catalog of security and privacy controls for federal information systems and organizations. The current revision (Rev. 5) organizes controls into 20 families addressing various aspects of security, from access control to system and information integrity. Each control includes implementation guidance and assessment procedures. For specific controls, please ask about a particular family or control identifier.";
+        } 
+        else if (userMessageLower.includes('hipaa')) {
+          return "The Health Insurance Portability and Accountability Act (HIPAA) establishes standards for protecting sensitive patient health information. Key requirements include implementing technical safeguards (encryption, access controls), physical safeguards (facility security), and administrative safeguards (policies, risk assessment). Covered entities must ensure data confidentiality, integrity, and availability while allowing authorized access for patient care.";
+        }
+        else if (userMessageLower.includes('gdpr')) {
+          return "The General Data Protection Regulation (GDPR) is the EU's comprehensive data protection law. It grants individuals rights over their personal data, including access, deletion, and portability. Organizations must implement privacy by design, conduct impact assessments, maintain records of processing activities, and report breaches within 72 hours. Non-compliance can result in fines up to €20 million or 4% of global annual revenue.";
+        }
+        else if (userMessageLower.includes('password') || userMessageLower.includes('authentication')) {
+          return "Strong password policies are essential for compliance with most security frameworks. Best practices include: minimum length of 12+ characters, complexity requirements (uppercase, lowercase, numbers, symbols), regular rotation (though NIST now recommends against forced periodic changes), account lockout after failed attempts, multi-factor authentication where possible, and secure storage using strong hashing algorithms.";
+        }
+        else if (userMessageLower.includes('risk') || userMessageLower.includes('assessment')) {
+          return "Risk assessment is a foundational element of compliance programs across standards. The process typically involves: identifying assets and their value, determining threats and vulnerabilities, assessing likelihood and impact, calculating risk levels, and developing mitigation strategies. Most frameworks (NIST, ISO 27001, etc.) require regular risk assessments as part of a continuous monitoring approach.";
+        }
+        else {
+          return "I'm currently operating in simulation mode while our backend server is being deployed. For compliance assistance, try asking about specific standards like NIST 800-53, HIPAA, GDPR, or common security practices like risk assessment, authentication requirements, or data protection methods. Once our server is operational, I'll be able to provide more detailed and customized responses.";
+        }
+      }
+      
+      // Update server status to indicate simulation mode
+      serverStatus.className = 'server-status warning';
+      serverStatus.textContent = '⚠️ Assistant is running in simulation mode (server not available)';
     </script>
   </body>
 </html>
