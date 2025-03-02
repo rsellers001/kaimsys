@@ -66,6 +66,25 @@
         font-size: 1rem;
         line-height: 1.5;
       }
+      .server-status {
+        padding: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      .server-status.warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .server-status.error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .server-status.success {
+        background-color: #d4edda;
+        color: #155724;
+      }
       .chat-history {
         height: 400px;
         overflow-y: auto;
@@ -199,6 +218,8 @@
         
         <div id="error-message" class="error-message hidden"></div>
         
+        <div id="serverStatus" class="server-status warning">⚠️ Server connection status will appear here when you send a message</div>
+        
         <div id="chat-history" class="chat-history">
           <!-- Chat messages will appear here -->
         </div>
@@ -310,6 +331,11 @@
         }
 
         try {
+          // Update server status
+          const serverStatus = document.getElementById('serverStatus');
+          serverStatus.className = 'server-status warning';
+          serverStatus.textContent = '⚠️ Connecting to server...';
+          
           // Call the backend API with the OpenAI Assistant
           const response = await fetch('/api/chat', {
             method: 'POST',
@@ -325,6 +351,11 @@
           if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
           }
+          
+          // Update server status to success
+          serverStatus.className = 'server-status success';
+          serverStatus.textContent = '✅ Connected to server';
+          
 
           const data = await response.json();
           
@@ -350,10 +381,16 @@
           }
         } catch (error) {
           console.error('Error calling assistant API:', error);
+          
+          // Update server status to error
+          const serverStatus = document.getElementById('serverStatus');
+          serverStatus.className = 'server-status error';
+          serverStatus.textContent = '❌ Server connection error: ' + error.message;
+          
           // Handle error gracefully with a fallback response
           const aiMessage = {
             role: 'assistant',
-            content: 'I apologize, but I encountered an issue processing your request. Please try again. Error details: ' + error.message,
+            content: 'I apologize, but I encountered an issue connecting to the backend server. Please make sure the server is running and try again.',
             timestamp: new Date().toISOString()
           };
           messages.push(aiMessage);
