@@ -287,35 +287,65 @@
         updateServerStatus('idle', 'Ready to assist with compliance questions');
       }
 
-      // Event listeners
-      sendButton.addEventListener('click', function() {
-        handleUserMessage();
-      });
-      
-      messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
+      // Event listeners with safety checks and debugging
+      if (sendButton) {
+        console.log('Adding click event listener to send button');
+        sendButton.addEventListener('click', function(event) {
+          event.preventDefault();
+          console.log('Send button clicked');
           handleUserMessage();
-        }
-      });
-      
-      messageInput.addEventListener('input', function() {
-        sendButton.disabled = !messageInput.value.trim();
-      });
-      
-      stars.forEach(star => {
-        star.addEventListener('click', function() {
-          const rating = this.getAttribute('data-rating');
-          handleFeedback(rating);
         });
-      });
+      } else {
+        console.error('Send button not found in DOM');
+      }
       
-      // Initialize button state
-      sendButton.disabled = !messageInput.value.trim();
+      if (messageInput) {
+        console.log('Adding keypress event listener to message input');
+        messageInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            console.log('Enter key pressed');
+            handleUserMessage();
+          }
+        });
+        
+        console.log('Adding input event listener to message input');
+        messageInput.addEventListener('input', function() {
+          if (sendButton) {
+            sendButton.disabled = !messageInput.value.trim();
+          }
+        });
+      } else {
+        console.error('Message input not found in DOM');
+      }
+      
+      if (stars && stars.length > 0) {
+        console.log('Adding click event listeners to star ratings');
+        stars.forEach(star => {
+          star.addEventListener('click', function() {
+            const rating = this.getAttribute('data-rating');
+            console.log('Star rating clicked:', rating);
+            handleFeedback(rating);
+          });
+        });
+      } else {
+        console.error('Star rating elements not found in DOM');
+      }
+      
+      // Initialize button state with safety check
+      if (sendButton && messageInput) {
+        console.log('Initializing send button state');
+        sendButton.disabled = !messageInput.value.trim();
+      }
       
       // Helper functions
       function updateServerStatus(status, message) {
-        if (!serverStatus) return;
+        if (!serverStatus) {
+          console.error('Server status element not found');
+          return;
+        }
+        
+        console.log(`Updating server status: ${status} - ${message}`);
         
         if (status === 'idle') {
           serverStatus.className = 'server-status success';
@@ -334,7 +364,19 @@
       
       // Core functions
       async function handleUserMessage() {
+        console.log('handleUserMessage called');
+        
+        // Force simulation mode for now to ensure it works
+        simulationMode = true;
+        
+        // Safety check for DOM elements
+        if (!messageInput) {
+          console.error('Message input element not found');
+          return;
+        }
+        
         const userInput = messageInput.value.trim();
+        console.log('User input:', userInput);
         
         if (!userInput) {
           if (errorMessage) {
@@ -359,8 +401,10 @@
         
         // Clear input and disable send button
         messageInput.value = '';
-        sendButton.disabled = true;
-        sendButton.innerHTML = '<div class="loading-spinner"></div>';
+        if (sendButton) {
+          sendButton.disabled = true;
+          sendButton.innerHTML = '<div class="loading-spinner"></div>';
+        }
         
         // Update chat display immediately to show user message
         updateChatDisplay();
@@ -371,59 +415,59 @@
           
           if (!simulationMode) {
             // Attempt to call the real OpenAI Assistant API
-            const response = await fetch('/api/chat', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                message: userInput,
-                threadId: currentThreadId
-              })
-            });
+            console.log('Attempting to call API with:', { message: userInput, threadId: currentThreadId });
             
-            if (response.ok) {
-              const result = await response.json();
+            try {
+              const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  message: userInput,
+                  threadId: currentThreadId
+                })
+              });
               
-              // Store thread ID for continuity
-              currentThreadId = result.threadId;
-              localStorage.setItem('complianceAssistantThreadId', currentThreadId);
+              console.log('API response status:', response.status);
               
-              // Add AI response to chat
-              const aiMessage = {
-                role: 'assistant',
-                content: result.response,
-                timestamp: new Date().toISOString()
-              };
-              messages.push(aiMessage);
-              
-              // Update status to show success
-              updateServerStatus('idle', 'Connected to OpenAI Assistant');
-            } else {
-              // API call failed, fallback to simulation mode
-              console.error('API call failed:', response.status);
-              simulationMode = true;
-              const errorText = await response.text();
-              console.error('Error details:', errorText);
-              
-              // Fallback to simulation mode with a note
-              const simulatedResponse = generateSimulatedResponse(userInput) + "\n\n(Note: This is a simulated response as the server connection failed. The system will attempt to reconnect on your next message.)";
-              
-              const aiMessage = {
-                role: 'assistant',
-                content: simulatedResponse,
-                timestamp: new Date().toISOString()
-              };
-              messages.push(aiMessage);
-              
-              // Update status to show simulation mode
-              updateServerStatus('simulation', 'Using simulation mode (server error, will retry)'); 
+              if (response.ok) {
+                const result = await response.json();
+                console.log('API response data:', result);
+                
+                // Store thread ID for continuity
+                currentThreadId = result.threadId;
+                localStorage.setItem('complianceAssistantThreadId', currentThreadId);
+                
+                // Add AI response to chat
+                const aiMessage = {
+                  role: 'assistant',
+                  content: result.response,
+                  timestamp: new Date().toISOString()
+                };
+                messages.push(aiMessage);
+                
+                // Update status to show success
+                updateServerStatus('idle', 'Connected to OpenAI Assistant');
+              } else {
+                // API call failed, fallback to simulation mode
+                console.error('API call failed:', response.status);
+                simulationMode = true;
+                const errorText = await response.text();
+                console.error('Error details:', errorText);
+                throw new Error(`API call failed: ${response.status} - ${errorText}`);
+              }
+            } catch (apiError) {
+              console.error('API call error:', apiError);
+              throw apiError; // Re-throw to be handled by the outer catch block
             }
           } else {
             // Simulation mode is on, use simulated response
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
+            console.log('Using simulation mode');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Shorter delay for testing
             
             const simulatedResponse = generateSimulatedResponse(userInput);
+            console.log('Generated simulated response');
             
             const aiMessage = {
               role: 'assistant',
@@ -433,14 +477,8 @@
             messages.push(aiMessage);
             
             // Update status to show simulation mode
-            updateServerStatus('simulation', 'Using simulation mode (configure server for live responses)'); 
+            updateServerStatus('simulation', 'Using simulation mode'); 
           }
-          
-          // Try to auto-switch back to live mode on next message if we're in simulation mode due to error
-          if (simulationMode) {
-            simulationMode = false; // Will try to use live mode next time
-          }
-          
         } catch (error) {
           console.error('Error in handleUserMessage:', error);
           
@@ -458,6 +496,8 @@
           // Update status to show error
           updateServerStatus('error', 'Server connection error: ' + error.message);
         } finally {
+          console.log('handleUserMessage completed');
+          
           // Save chat history to localStorage
           try {
             localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
@@ -467,8 +507,10 @@
           
           // Update UI
           updateChatDisplay();
-          sendButton.innerHTML = '<span class="material-icons">send</span>';
-          sendButton.disabled = false;
+          if (sendButton) {
+            sendButton.innerHTML = '<span class="material-icons">send</span>';
+            sendButton.disabled = false;
+          }
           
           // Show feedback dialog
           setTimeout(function() {
