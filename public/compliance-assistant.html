@@ -249,9 +249,7 @@
 
     <script>
       // Global variables
-      let simulationMode = true; // Set to false once the backend server is fully deployed
-      console.log('Simulation mode enabled:', simulationMode); // Debug information
-      let currentThreadId = null;
+      const messages = [];
       
       // DOM elements
       const messageInput = document.getElementById('message-input');
@@ -261,128 +259,115 @@
       const feedbackDialog = document.getElementById('feedback-dialog');
       const stars = document.querySelectorAll('.star');
       const serverStatus = document.getElementById('serverStatus');
-
+      
       // Load chat history from localStorage
-      let messages = [];
       try {
         const savedMessages = localStorage.getItem('complianceChatHistory');
         if (savedMessages) {
-          messages = JSON.parse(savedMessages);
-          renderChatHistory();
+          const parsedMessages = JSON.parse(savedMessages);
+          parsedMessages.forEach(msg => messages.push(msg));
         }
       } catch (e) {
         console.error('Error loading chat history:', e);
       }
+      
+      // Initial render
+      updateChatDisplay();
 
       // Event listeners
-      if (sendButton) {
-        sendButton.addEventListener('click', handleSend);
-      }
+      sendButton.addEventListener('click', function() {
+        handleUserMessage();
+      });
       
-      if (messageInput) {
-        messageInput.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-          }
-        });
-        
-        // Add input event to dynamically update button state
-        messageInput.addEventListener('input', updateSendButtonState);
-      }
-
+      messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleUserMessage();
+        }
+      });
+      
+      messageInput.addEventListener('input', function() {
+        sendButton.disabled = !messageInput.value.trim();
+      });
+      
       stars.forEach(star => {
         star.addEventListener('click', function() {
           const rating = this.getAttribute('data-rating');
           handleFeedback(rating);
         });
       });
-
-      // Functions
-      // Store thread ID for conversation continuity
-      let currentThreadId = null;
-
-      async function handleSend() {
-        try {
-          const input = messageInput.value.trim();
-          
-          if (!input) {
-            if (errorMessage) {
-              errorMessage.textContent = 'Please enter a message';
-              errorMessage.classList.remove('hidden');
-            }
-            return;
-          }
-          
+      
+      // Initialize button state
+      sendButton.disabled = !messageInput.value.trim();
+      
+      // Set initial server status
+      if (serverStatus) {
+        serverStatus.className = 'server-status warning';
+        serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
+      }
+      
+      // Core functions
+      function handleUserMessage() {
+        const userInput = messageInput.value.trim();
+        
+        if (!userInput) {
           if (errorMessage) {
-            errorMessage.classList.add('hidden');
+            errorMessage.textContent = 'Please enter a message';
+            errorMessage.classList.remove('hidden');
           }
+          return;
+        }
+        
+        // Hide error message if present
+        if (errorMessage) {
+          errorMessage.classList.add('hidden');
+        }
+        
+        // Add user message to chat
+        messages.push({
+          role: 'user',
+          content: userInput,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Clear input and disable send button
+        messageInput.value = '';
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<div class="loading-spinner"></div>';
+        
+        // Update chat display
+        updateChatDisplay();
+        
+        // Generate simulated response after a brief delay
+        setTimeout(function() {
+          const aiResponse = generateSimulatedResponse(userInput);
           
-          const userMessage = {
-            role: 'user',
-            content: input,
-            timestamp: new Date().toISOString()
-          };
-          
-          messages.push(userMessage);
-          if (messageInput) {
-            messageInput.value = '';
-          }
-          updateSendButtonState();
-          renderChatHistory();
-          
-          // Show loading state
-          if (sendButton) {
-            sendButton.disabled = true;
-            sendButton.innerHTML = '<div class="loading-spinner"></div>';
-          }
-          
-          // Update server status
-          if (serverStatus) {
-            serverStatus.className = 'server-status warning';
-            serverStatus.textContent = '⚠️ Connecting to server...';
-          }
-          
-          console.log('Running in simulation mode:', simulationMode); // Debug
-          
-          // Always use simulation mode for now
-          // Simulate a server response with a delay
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Update status to indicate simulation mode
-          if (serverStatus) {
-            serverStatus.className = 'server-status warning';
-            serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
-          }
-          
-          // Generate a simulated response
-          const simulatedResponse = generateSimulatedResponse(input);
-          console.log('Generated simulated response:', simulatedResponse.substring(0, 50) + '...'); // Debug
-          
-          // Add the AI response
-          const aiMessage = {
+          // Add AI response to chat
+          messages.push({
             role: 'assistant',
-            content: simulatedResponse,
+            content: aiResponse,
             timestamp: new Date().toISOString()
-          };
+          });
           
-          messages.push(aiMessage);
-          
-          // Save to localStorage
+          // Save chat history to localStorage
           try {
             localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
           } catch (e) {
             console.error('Error saving chat history:', e);
           }
           
-          renderChatHistory();
-          if (sendButton) {
-            sendButton.disabled = false;
-            sendButton.innerHTML = '<span class="material-icons">send</span>';
-          }
+          // Update UI
+          updateChatDisplay();
+          sendButton.innerHTML = '<span class="material-icons">send</span>';
+          sendButton.disabled = false;
           
-          // Skip the API call entirely
-          return;
+          // Show feedback dialog
+          setTimeout(function() {
+            if (feedbackDialog) {
+              feedbackDialog.classList.remove('hidden');
+            }
+          }, 1000);
+        }, 1500);
           
           // If not in simulation mode, try to call the real backend API
           const response = await fetch('/api/chat', {
@@ -462,54 +447,38 @@
         }
       }
 
-      function renderChatHistory() {
-        if (!chatHistory) {
-          console.error('Chat history element not found');
-          return;
-        }
+      function updateChatDisplay() {
+        if (!chatHistory) return;
         
+        // Clear existing messages
         chatHistory.innerHTML = '';
         
-        if (!messages || !Array.isArray(messages)) {
-          console.error('Messages is not an array:', messages);
-          return;
-        }
-        
+        // Add each message to the display
         messages.forEach(message => {
-          try {
-            const messageEl = document.createElement('div');
-            messageEl.classList.add('message');
-            messageEl.classList.add(message.role === 'user' ? 'user-message' : 'assistant-message');
-            
-            const headerEl = document.createElement('div');
-            headerEl.classList.add('message-header');
-            
-            const senderEl = document.createElement('div');
-            senderEl.classList.add('message-sender');
-            senderEl.textContent = message.role === 'user' ? 'You' : 'Assistant';
-            
-            headerEl.appendChild(senderEl);
-            
-            // Standards section removed
-            
-            const contentEl = document.createElement('div');
-            contentEl.classList.add('message-content');
-            contentEl.textContent = message.content || 'No content';
-            
-            messageEl.appendChild(headerEl);
-            messageEl.appendChild(contentEl);
-            chatHistory.appendChild(messageEl);
-          } catch (error) {
-            console.error('Error rendering message:', error, message);
-          }
+          const messageEl = document.createElement('div');
+          messageEl.classList.add('message');
+          messageEl.classList.add(message.role === 'user' ? 'user-message' : 'assistant-message');
+          
+          const headerEl = document.createElement('div');
+          headerEl.classList.add('message-header');
+          
+          const senderEl = document.createElement('div');
+          senderEl.classList.add('message-sender');
+          senderEl.textContent = message.role === 'user' ? 'You' : 'Assistant';
+          
+          headerEl.appendChild(senderEl);
+          
+          const contentEl = document.createElement('div');
+          contentEl.classList.add('message-content');
+          contentEl.textContent = message.content || 'No content';
+          
+          messageEl.appendChild(headerEl);
+          messageEl.appendChild(contentEl);
+          chatHistory.appendChild(messageEl);
         });
         
         // Scroll to bottom
-        try {
-          chatHistory.scrollTop = chatHistory.scrollHeight;
-        } catch (error) {
-          console.error('Error scrolling chat history:', error);
-        }
+        chatHistory.scrollTop = chatHistory.scrollHeight;
       }
 
       function handleFeedback(rating) {
@@ -519,23 +488,14 @@
         }
       }
 
-      function updateSendButtonState() {
-        if (sendButton && messageInput) {
-          sendButton.disabled = !messageInput.value.trim();
-          
-          // Visual indication of button state
-          if (!messageInput.value.trim()) {
-            sendButton.classList.add('disabled');
-          } else {
-            sendButton.classList.remove('disabled');
-          }
+      function handleFeedback(rating) {
+        console.log('User gave feedback rating:', rating);
+        if (feedbackDialog) {
+          feedbackDialog.classList.add('hidden');
         }
       }
-
-      // Initialize send button state
-      updateSendButtonState();
       
-      // Function to generate simulated responses
+      // Generate simulated responses based on user input keywords
       function generateSimulatedResponse(userMessage) {
         const userMessageLower = userMessage.toLowerCase();
         
@@ -558,12 +518,6 @@
         else {
           return "I'm currently operating in simulation mode while our backend server is being deployed. For compliance assistance, try asking about specific standards like NIST 800-53, HIPAA, GDPR, or common security practices like risk assessment, authentication requirements, or data protection methods. Once our server is operational, I'll be able to provide more detailed and customized responses.";
         }
-      }
-      
-      // Update server status to indicate simulation mode
-      if (serverStatus) {
-        serverStatus.className = 'server-status warning';
-        serverStatus.textContent = '⚠️ Assistant is running in simulation mode (server not available)';
       }
     </script>
   </body>
