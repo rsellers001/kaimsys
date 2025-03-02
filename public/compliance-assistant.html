@@ -250,6 +250,8 @@
     <script>
       // Global variables
       const messages = [];
+      let simulationMode = false; // Set to false to use the real OpenAI Assistant API
+      let currentThreadId = null;
       
       // DOM elements
       const messageInput = document.getElementById('message-input');
@@ -267,12 +269,23 @@
           const parsedMessages = JSON.parse(savedMessages);
           parsedMessages.forEach(msg => messages.push(msg));
         }
+        
+        // Try to get thread ID from localStorage
+        const savedThreadId = localStorage.getItem('complianceAssistantThreadId');
+        if (savedThreadId) {
+          currentThreadId = savedThreadId;
+        }
       } catch (e) {
         console.error('Error loading chat history:', e);
       }
       
       // Initial render
       updateChatDisplay();
+      
+      // Update initial server status
+      if (serverStatus) {
+        updateServerStatus('idle', 'Ready to assist with compliance questions');
+      }
 
       // Event listeners
       sendButton.addEventListener('click', function() {
@@ -300,14 +313,27 @@
       // Initialize button state
       sendButton.disabled = !messageInput.value.trim();
       
-      // Set initial server status
-      if (serverStatus) {
-        serverStatus.className = 'server-status warning';
-        serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
+      // Helper functions
+      function updateServerStatus(status, message) {
+        if (!serverStatus) return;
+        
+        if (status === 'idle') {
+          serverStatus.className = 'server-status success';
+          serverStatus.textContent = '✓ ' + message;
+        } else if (status === 'connecting') {
+          serverStatus.className = 'server-status warning';
+          serverStatus.textContent = '⚠️ ' + message;
+        } else if (status === 'error') {
+          serverStatus.className = 'server-status error';
+          serverStatus.textContent = '❌ ' + message;
+        } else if (status === 'simulation') {
+          serverStatus.className = 'server-status warning';
+          serverStatus.textContent = '⚠️ ' + message;
+        }
       }
       
       // Core functions
-      function handleUserMessage() {
+      async function handleUserMessage() {
         const userInput = messageInput.value.trim();
         
         if (!userInput) {
@@ -324,31 +350,114 @@
         }
         
         // Add user message to chat
-        messages.push({
+        const userMessage = {
           role: 'user',
           content: userInput,
           timestamp: new Date().toISOString()
-        });
+        };
+        messages.push(userMessage);
         
         // Clear input and disable send button
         messageInput.value = '';
         sendButton.disabled = true;
         sendButton.innerHTML = '<div class="loading-spinner"></div>';
         
-        // Update chat display
+        // Update chat display immediately to show user message
         updateChatDisplay();
         
-        // Generate simulated response after a brief delay
-        setTimeout(function() {
-          const aiResponse = generateSimulatedResponse(userInput);
+        try {
+          // Update status to show connecting
+          updateServerStatus('connecting', 'Connecting to assistant...');
           
-          // Add AI response to chat
-          messages.push({
+          if (!simulationMode) {
+            // Attempt to call the real OpenAI Assistant API
+            const response = await fetch('/api/chat', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: userInput,
+                threadId: currentThreadId
+              })
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              
+              // Store thread ID for continuity
+              currentThreadId = result.threadId;
+              localStorage.setItem('complianceAssistantThreadId', currentThreadId);
+              
+              // Add AI response to chat
+              const aiMessage = {
+                role: 'assistant',
+                content: result.response,
+                timestamp: new Date().toISOString()
+              };
+              messages.push(aiMessage);
+              
+              // Update status to show success
+              updateServerStatus('idle', 'Connected to OpenAI Assistant');
+            } else {
+              // API call failed, fallback to simulation mode
+              console.error('API call failed:', response.status);
+              simulationMode = true;
+              const errorText = await response.text();
+              console.error('Error details:', errorText);
+              
+              // Fallback to simulation mode with a note
+              const simulatedResponse = generateSimulatedResponse(userInput) + "\n\n(Note: This is a simulated response as the server connection failed. The system will attempt to reconnect on your next message.)";
+              
+              const aiMessage = {
+                role: 'assistant',
+                content: simulatedResponse,
+                timestamp: new Date().toISOString()
+              };
+              messages.push(aiMessage);
+              
+              // Update status to show simulation mode
+              updateServerStatus('simulation', 'Using simulation mode (server error, will retry)'); 
+            }
+          } else {
+            // Simulation mode is on, use simulated response
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate delay
+            
+            const simulatedResponse = generateSimulatedResponse(userInput);
+            
+            const aiMessage = {
+              role: 'assistant',
+              content: simulatedResponse,
+              timestamp: new Date().toISOString()
+            };
+            messages.push(aiMessage);
+            
+            // Update status to show simulation mode
+            updateServerStatus('simulation', 'Using simulation mode (configure server for live responses)'); 
+          }
+          
+          // Try to auto-switch back to live mode on next message if we're in simulation mode due to error
+          if (simulationMode) {
+            simulationMode = false; // Will try to use live mode next time
+          }
+          
+        } catch (error) {
+          console.error('Error in handleUserMessage:', error);
+          
+          // Handle error and fallback to simulation
+          simulationMode = true;
+          
+          // Add error message as assistant response
+          const aiMessage = {
             role: 'assistant',
-            content: aiResponse,
+            content: "I apologize, but I encountered an issue connecting to the backend server. I'll use simulation mode to continue our conversation.",
             timestamp: new Date().toISOString()
-          });
+          };
+          messages.push(aiMessage);
           
+          // Update status to show error
+          updateServerStatus('error', 'Server connection error: ' + error.message);
+        } finally {
           // Save chat history to localStorage
           try {
             localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
@@ -367,84 +476,8 @@
               feedbackDialog.classList.remove('hidden');
             }
           }, 1000);
-        }, 1500);
-          
-          // If not in simulation mode, try to call the real backend API
-          const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              message: input,
-              threadId: currentThreadId // Pass thread ID for conversation continuity
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-          }
-          
-          // Update server status to success
-          if (serverStatus) {
-            serverStatus.className = 'server-status success';
-            serverStatus.textContent = '✅ Connected to server';
-          }
-          
-
-          const data = await response.json();
-          
-          // Save the thread ID for future messages
-          if (data.threadId) {
-            currentThreadId = data.threadId;
-          }
-          
-          // Add the AI response
-          const aiMessage = {
-            role: 'assistant',
-            content: data.response,
-            timestamp: new Date().toISOString()
-          };
-          
-          messages.push(aiMessage);
-          
-          // Save to localStorage
-          try {
-            localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
-          } catch (e) {
-            console.error('Error saving chat history:', e);
-          }
-        } catch (error) {
-          console.error('Error calling assistant API:', error);
-          
-          // Update server status to error
-          const serverStatusElement = document.getElementById('serverStatus');
-          if (serverStatusElement) {
-            serverStatusElement.className = 'server-status error';
-            serverStatusElement.textContent = '❌ Server connection error: ' + error.message;
-          }
-          
-          // Handle error gracefully with a fallback response
-          const aiMessage = {
-            role: 'assistant',
-            content: 'I apologize, but I encountered an issue connecting to the backend server. Please make sure the server is running and try again.',
-            timestamp: new Date().toISOString()
-          };
-          messages.push(aiMessage);
-        } finally {
-          renderChatHistory();
-          if (sendButton) {
-            sendButton.disabled = false;
-            sendButton.innerHTML = '<span class="material-icons">send</span>';
-          }
-          
-          // Show feedback dialog
-          setTimeout(() => {
-            if (feedbackDialog) {
-              feedbackDialog.classList.remove('hidden');
-            }
-          }, 2000);
         }
+      }
       }
 
       function updateChatDisplay() {

@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 // Define the assistant ID
-const ASSISTANT_ID = 'asst_mdHmmLAhyOprNvM3MhX6Tm6K';
+const ASSISTANT_ID = 'asst_dpRr7Xj66ivUtIChztNiW7mV';
 
 // Helper functions for working with the assistant
 const assistantService = {
