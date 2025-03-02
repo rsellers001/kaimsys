@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="KAiM Systems - Compliance Assistant Guide" />
+    <title>KAiM Systems - Compliance Assistant Guide</title>
+    <!-- Material UI Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+      }
+      .container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #1976d2;
+      }
+      .section {
+        margin-bottom: 2rem;
+      }
+      .section-title {
+        color: #1976d2;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+      }
+      .step {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+      }
+      .step-number {
+        background-color: #1976d2;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+      .step-content {
+        flex-grow: 1;
+      }
+      .image-container {
+        margin: 1rem 0;
+        text-align: center;
+      }
+      .image-container img {
+        max-width: 100%;
+        border: 1px solid #eee;
+        border-radius: 4px;
+      }
+      .note {
+        background-color: #e3f2fd;
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #1976d2;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 1rem;
+        text-align: center;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">KAiM Systems</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="compliance-assistant.html">Compliance Assistant</a>
+        <a href="compliance-guide.html" class="active">Guide</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1 class="title">Compliance Assistant User Guide</h1>
+      
+      <div class="section">
+        <h2 class="section-title">Introduction</h2>
+        <p>
+          Welcome to the KAiM Systems Compliance Assistant! This guide will walk you through how to effectively 
+          use our compliance chatbot to get information about different compliance standards such as NIST 800.53, 
+          COBIT, SOX, and GDPR.
+        </p>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">Getting Started</h2>
+        
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Access the Compliance Assistant</h3>
+            <p>
+              Navigate to the <a href="compliance-assistant.html">Compliance Assistant</a> page from the navigation menu.
+            </p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Select a Primary Standard</h3>
+            <p>
+              From the dropdown menu labeled "Primary Standard," select the compliance standard you're most interested in:
+            </p>
+            <ul>
+              <li><strong>NIST 800.53</strong> - Security and privacy controls for federal information systems</li>
+              <li><strong>COBIT</strong> - Framework for IT governance and management</li>
+              <li><strong>SOX</strong> - Sarbanes-Oxley Act for financial practice and corporate governance</li>
+              <li><strong>GDPR</strong> - EU regulation on data protection and privacy</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Select an Optional Secondary Standard</h3>
+            <p>
+              If you'd like to explore relationships between two standards, you can select a secondary standard.
+              This is optional, and you can leave it as "None" if you're only interested in a single standard.
+            </p>
+            <div class="note">
+              Note: You cannot select the same standard for both primary and secondary selections.
+            </div>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Ask a Question</h3>
+            <p>
+              Type your compliance-related question in the text area. For example:
+            </p>
+            <ul>
+              <li>"What are the key components of NIST 800.53?"</li>
+              <li>"How does COBIT relate to SOX compliance?"</li>
+              <li>"What are the main requirements for GDPR?"</li>
+            </ul>
+            <p>
+              Then click the send button or press Enter to submit your question.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">Interacting with the Assistant</h2>
+        
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Review Responses</h3>
+            <p>
+              The assistant will provide information about the standard(s) you selected, including:
+            </p>
+            <ul>
+              <li>A brief description of the standard</li>
+              <li>Specific information related to your question</li>
+              <li>If you selected a secondary standard, comparisons or relationships between the two standards</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Provide Feedback</h3>
+            <p>
+              After each response, you'll be prompted to rate the helpfulness of the answer on a scale of 1-5 stars.
+              Your feedback helps us improve the quality of responses.
+            </p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Continue the Conversation</h3>
+            <p>
+              You can continue asking questions, and your chat history will be preserved during your session.
+              The assistant will remember which standards you're discussing.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">Tips for Effective Use</h2>
+        
+        <ul>
+          <li><strong>Be specific in your questions</strong> - The more specific your question, the more targeted the response will be.</li>
+          <li><strong>Change standards as needed</strong> - You can change the primary and secondary standards at any time during your session.</li>
+          <li><strong>Use clear terminology</strong> - Using standard terminology from the compliance frameworks will yield better results.</li>
+          <li><strong>Provide context</strong> - If you're asking about a specific section or requirement, mention it explicitly.</li>
+        </ul>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">Get Started Now</h2>
+        <p>
+          Ready to explore compliance standards? Head to the Compliance Assistant and start your conversation!
+        </p>
+        <a href="compliance-assistant.html" class="button">Go to Compliance Assistant</a>
+      </div>
+    </div>
+  </body>
+</html>

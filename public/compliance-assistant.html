@@ -171,21 +171,35 @@
       .hidden {
         display: none;
       }
+      .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
   <body>
     <div class="navbar">
       <div class="logo">KAiM Systems</div>
       <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/services">Services</a>
-        <a href="/compliance-assistant.html" class="active">Compliance Assistant</a>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="compliance-assistant.html" class="active">Compliance Assistant</a>
+        <a href="compliance-guide.html">Assistant Guide</a>
       </div>
     </div>
 
     <div class="container">
       <h1 class="title">Compliance Standards Assistant</h1>
+      <p style="text-align: center; margin-bottom: 20px;">Need help? <a href="compliance-guide.html">Check out our guide</a> for instructions on using this assistant.</p>
       
       <div class="chat-container">
         <div class="standards-select">
@@ -339,7 +353,10 @@
       });
 
       // Functions
-      function handleSend() {
+      // Store thread ID for conversation continuity
+      let currentThreadId = null;
+
+      async function handleSend() {
         const input = messageInput.value.trim();
         const primaryStandard = primaryStandardSelect.value;
 
@@ -352,12 +369,15 @@
         errorMessage.classList.add('hidden');
 
         const secondaryStandard = secondaryStandardSelect.value;
+        const standardPrimaryTitle = STANDARD_INFO[primaryStandard] ? STANDARD_INFO[primaryStandard].title : primaryStandard;
+        const standardSecondaryTitle = secondaryStandard && STANDARD_INFO[secondaryStandard] ? STANDARD_INFO[secondaryStandard].title : secondaryStandard;
+        
         const userMessage = {
           role: 'user',
           content: input,
           standards: {
-            primary: STANDARD_INFO[primaryStandard]?.title,
-            secondary: secondaryStandard ? STANDARD_INFO[secondaryStandard]?.title : null
+            primary: standardPrimaryTitle,
+            secondary: secondaryStandard ? standardSecondaryTitle : null
           },
           timestamp: new Date().toISOString()
         };
@@ -367,35 +387,42 @@
         updateSendButtonState();
         renderChatHistory();
 
-        // Simulate loading state
+        // Show loading state
         sendButton.disabled = true;
-        sendButton.innerHTML = '<div class="loading-spinner"></div>';
+        if (sendButton) {
+          sendButton.innerHTML = '<div class="loading-spinner"></div>';
+        }
 
-        // Simulate AI response after delay
-        setTimeout(() => {
-          // Generate simple demo response
-          const primaryInfo = STANDARD_INFO[primaryStandard];
-          const secondaryInfo = secondaryStandard ? STANDARD_INFO[secondaryStandard] : null;
+        try {
+          // Call the backend API with the OpenAI Assistant
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: input,
+              primaryStandard: standardPrimaryTitle,
+              secondaryStandard: secondaryStandard ? standardSecondaryTitle : '',
+              threadId: currentThreadId // Pass thread ID for conversation continuity
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
           
-          // Pick a random response from the standard's prepared responses
-          const randomPrimaryResponse = primaryInfo.responses[
-            Math.floor(Math.random() * primaryInfo.responses.length)
-          ];
-          
-          let responseText = `${primaryInfo.description}\n\n${randomPrimaryResponse}`;
-          
-          if (secondaryInfo) {
-            const randomSecondaryResponse = secondaryInfo.responses[
-              Math.floor(Math.random() * secondaryInfo.responses.length)
-            ];
-            
-            responseText += `\n\nRegarding ${secondaryInfo.title}: ${randomSecondaryResponse}`;
+          // Save the thread ID for future messages
+          if (data.threadId) {
+            currentThreadId = data.threadId;
           }
           
           // Add the AI response
           const aiMessage = {
             role: 'assistant',
-            content: responseText,
+            content: data.response,
             timestamp: new Date().toISOString()
           };
           
@@ -407,57 +434,97 @@
           } catch (e) {
             console.error('Error saving chat history:', e);
           }
-          
+        } catch (error) {
+          console.error('Error calling assistant API:', error);
+          // Handle error gracefully with a fallback response
+          const aiMessage = {
+            role: 'assistant',
+            content: 'I apologize, but I encountered an issue processing your request about ' + 
+                     (STANDARD_INFO[primaryStandard] ? STANDARD_INFO[primaryStandard].title : 'this standard') + 
+                     '. Please try again or select a different standard. Error details: ' + error.message,
+            timestamp: new Date().toISOString()
+          };
+          messages.push(aiMessage);
+        } finally {
           renderChatHistory();
-          sendButton.disabled = false;
-          sendButton.innerHTML = '<span class="material-icons">send</span>';
+          if (sendButton) {
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<span class="material-icons">send</span>';
+          }
           
           // Show feedback dialog
           setTimeout(() => {
-            feedbackDialog.classList.remove('hidden');
-          }, 500);
-        }, 1000);
+            if (feedbackDialog) {
+              feedbackDialog.classList.remove('hidden');
+            }
+          }, 2000);
+        }
       }
 
       function renderChatHistory() {
+        if (!chatHistory) {
+          console.error('Chat history element not found');
+          return;
+        }
+        
         chatHistory.innerHTML = '';
+        
+        if (!messages || !Array.isArray(messages)) {
+          console.error('Messages is not an array:', messages);
+          return;
+        }
+        
         messages.forEach(message => {
-          const messageEl = document.createElement('div');
-          messageEl.classList.add('message');
-          messageEl.classList.add(message.role === 'user' ? 'user-message' : 'assistant-message');
-          
-          const headerEl = document.createElement('div');
-          headerEl.classList.add('message-header');
-          
-          const senderEl = document.createElement('div');
-          senderEl.classList.add('message-sender');
-          senderEl.textContent = message.role === 'user' ? 'You' : 'Assistant';
-          
-          headerEl.appendChild(senderEl);
-          
-          if (message.standards) {
-            const standardsEl = document.createElement('div');
-            standardsEl.classList.add('message-standards');
-            standardsEl.textContent = `${message.standards.primary}${message.standards.secondary ? ` & ${message.standards.secondary}` : ''}`;
-            headerEl.appendChild(standardsEl);
+          try {
+            const messageEl = document.createElement('div');
+            messageEl.classList.add('message');
+            messageEl.classList.add(message.role === 'user' ? 'user-message' : 'assistant-message');
+            
+            const headerEl = document.createElement('div');
+            headerEl.classList.add('message-header');
+            
+            const senderEl = document.createElement('div');
+            senderEl.classList.add('message-sender');
+            senderEl.textContent = message.role === 'user' ? 'You' : 'Assistant';
+            
+            headerEl.appendChild(senderEl);
+            
+            if (message.standards) {
+              const standardsEl = document.createElement('div');
+              standardsEl.classList.add('message-standards');
+              let standardsText = message.standards.primary || ''; 
+              if (message.standards.secondary) {
+                standardsText += ` & ${message.standards.secondary}`;
+              }
+              standardsEl.textContent = standardsText;
+              headerEl.appendChild(standardsEl);
+            }
+            
+            const contentEl = document.createElement('div');
+            contentEl.classList.add('message-content');
+            contentEl.textContent = message.content || 'No content';
+            
+            messageEl.appendChild(headerEl);
+            messageEl.appendChild(contentEl);
+            chatHistory.appendChild(messageEl);
+          } catch (error) {
+            console.error('Error rendering message:', error, message);
           }
-          
-          const contentEl = document.createElement('div');
-          contentEl.classList.add('message-content');
-          contentEl.textContent = message.content;
-          
-          messageEl.appendChild(headerEl);
-          messageEl.appendChild(contentEl);
-          chatHistory.appendChild(messageEl);
         });
         
         // Scroll to bottom
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        try {
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+        } catch (error) {
+          console.error('Error scrolling chat history:', error);
+        }
       }
 
       function handleFeedback(rating) {
         console.log(`User rated response: ${rating}/5`);
-        feedbackDialog.classList.add('hidden');
+        if (feedbackDialog) {
+          feedbackDialog.classList.add('hidden');
+        }
       }
 
       function updateSendButtonState() {

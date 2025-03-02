@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="KAiM Systems - Our Products" />
+    <title>KAiM Systems - Products</title>
+    <!-- Material UI Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links a.active {
+        font-weight: bold;
+        border-bottom: 2px solid white;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .product-header {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .product-header h1 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .product-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      }
+      .product-icon {
+        margin-bottom: 1rem;
+        color: #1976d2;
+        font-size: 48px;
+      }
+      .product-card h3 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .product-card .price {
+        color: #388e3c;
+        font-weight: bold;
+        margin: 0.5rem 0;
+      }
+      .product-card .features {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+      }
+      .product-card .features li {
+        margin-bottom: 0.5rem;
+      }
+      .product-card .spacer {
+        flex-grow: 1;
+      }
+      .contact-section {
+        background-color: #e3f2fd;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-top: 2rem;
+      }
+      .contact-section h2 {
+        color: #1976d2;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+      }
+      .contact-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group.full-width {
+        grid-column: span 2;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1rem;
+      }
+      .form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        font-size: 1rem;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+      .contact-info {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+      .contact-info h3 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .contact-method {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .contact-method .material-icons {
+        margin-right: 0.75rem;
+        color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">KAiM Systems</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="products.html" class="active">Products</a>
+        <a href="compliance-assistant.html">Compliance Assistant</a>
+        <a href="compliance-guide.html">Assistant Guide</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <section class="product-header">
+        <h1>Our Products</h1>
+        <p>
+          KAiM Systems offers a suite of AI-powered compliance and risk management products designed 
+          to help organizations of all sizes meet regulatory requirements with ease. Our products 
+          combine cutting-edge technology with deep domain expertise to deliver exceptional value.
+        </p>
+      </section>
+
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="product-icon">
+            <span class="material-icons">shield</span>
+          </div>
+          <h3>ComplianceGuard™ Enterprise</h3>
+          <p class="price">Contact for pricing</p>
+          <p>
+            Our flagship compliance management platform offers comprehensive coverage for enterprise organizations 
+            with complex regulatory requirements.
+          </p>
+          <ul class="features">
+            <li>Multi-standard compliance automation</li>
+            <li>Custom control mapping</li>
+            <li>Advanced risk analysis</li>
+            <li>Audit-ready reporting</li>
+            <li>Integration with existing GRC tools</li>
+          </ul>
+          <div class="spacer"></div>
+          <a href="#contact-form" class="button">Request Information</a>
+        </div>
+
+        <div class="product-card">
+          <div class="product-icon">
+            <span class="material-icons">business</span>
+          </div>
+          <h3>ComplianceGuard™ Business</h3>
+          <p class="price">Starting at $1,499/month</p>
+          <p>
+            Designed for mid-sized businesses, this comprehensive solution helps streamline compliance 
+            with multiple regulatory frameworks.
+          </p>
+          <ul class="features">
+            <li>Up to 5 regulatory frameworks</li>
+            <li>Automated compliance assessments</li>
+            <li>Control implementation guidance</li>
+            <li>Customizable dashboards</li>
+            <li>Dedicated customer success manager</li>
+          </ul>
+          <div class="spacer"></div>
+          <a href="#contact-form" class="button">Request Information</a>
+        </div>
+
+        <div class="product-card">
+          <div class="product-icon">
+            <span class="material-icons">storefront</span>
+          </div>
+          <h3>ComplianceGuard™ Essentials</h3>
+          <p class="price">Starting at $499/month</p>
+          <p>
+            An affordable compliance solution for small businesses and startups looking to establish 
+            a robust compliance program.
+          </p>
+          <ul class="features">
+            <li>Up to 2 regulatory frameworks</li>
+            <li>Basic compliance assessments</li>
+            <li>Pre-built policy templates</li>
+            <li>Standard reporting</li>
+            <li>Email support</li>
+          </ul>
+          <div class="spacer"></div>
+          <a href="#contact-form" class="button">Request Information</a>
+        </div>
+
+        <div class="product-card">
+          <div class="product-icon">
+            <span class="material-icons">chat</span>
+          </div>
+          <h3>AI Compliance Assistant</h3>
+          <p class="price">Free / Premium options available</p>
+          <p>
+            Our AI-powered assistant helps answer your compliance questions and provides guidance on 
+            implementing controls across multiple standards.
+          </p>
+          <ul class="features">
+            <li>Free basic version</li>
+            <li>Premium version with enhanced capabilities</li>
+            <li>Multi-standard knowledge base</li>
+            <li>Integration with ComplianceGuard™ products</li>
+            <li>Regular updates with new standards</li>
+          </ul>
+          <div class="spacer"></div>
+          <a href="compliance-assistant.html" class="button">Try Now</a>
+        </div>
+      </div>
+
+      <section id="contact-form" class="contact-section">
+        <h2>Request Product Information</h2>
+        <p>
+          Interested in learning more about our products? Fill out the form below and one of our 
+          product specialists will contact you with detailed information and pricing.
+        </p>
+        <form class="contact-form">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="company">Company Name *</label>
+            <input type="text" id="company" name="company" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone">
+          </div>
+          <div class="form-group full-width">
+            <label for="product">Product of Interest *</label>
+            <select id="product" name="product" required>
+              <option value="">Select a product</option>
+              <option value="enterprise">ComplianceGuard™ Enterprise</option>
+              <option value="business">ComplianceGuard™ Business</option>
+              <option value="essentials">ComplianceGuard™ Essentials</option>
+              <option value="assistant-premium">AI Compliance Assistant (Premium)</option>
+              <option value="custom">Custom Solution</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label for="message">Additional Information</label>
+            <textarea id="message" name="message" placeholder="Please tell us about your compliance needs, challenges, and any specific questions you have."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <button type="submit" class="button">Submit Request</button>
+          </div>
+        </form>
+      </section>
+
+      <div class="contact-info">
+        <h3>Other Ways to Contact Us</h3>
+        <div class="contact-method">
+          <span class="material-icons">email</span>
+          <span>sales@kaimsystems.com</span>
+        </div>
+        <div class="contact-method">
+          <span class="material-icons">phone</span>
+          <span>+1 (800) 555-0123</span>
+        </div>
+        <div class="contact-method">
+          <span class="material-icons">schedule</span>
+          <span>Monday - Friday, 9:00 AM - 5:00 PM Pacific Time</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

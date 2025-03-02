@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="KAiM Systems - About Us" />
+    <title>KAiM Systems - About Us</title>
+    <!-- Material UI Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links a.active {
+        font-weight: bold;
+        border-bottom: 2px solid white;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .about-section {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .about-section h1 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .team-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+      .team-member {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        text-align: center;
+      }
+      .team-member img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+      }
+      .team-member h3 {
+        margin-top: 0;
+        color: #1976d2;
+      }
+      .team-member p.role {
+        color: #555;
+        font-style: italic;
+        margin-bottom: 1rem;
+      }
+      .mission-section {
+        background-color: #e3f2fd;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .mission-section h2 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">KAiM Systems</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html" class="active">About</a>
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="compliance-assistant.html">Compliance Assistant</a>
+        <a href="compliance-guide.html">Assistant Guide</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <section class="about-section">
+        <h1>About KAiM Systems</h1>
+        <p>
+          Founded in 2023, KAiM Systems is a pioneer in the field of AI-powered compliance and risk management solutions. 
+          Our mission is to simplify regulatory compliance for businesses of all sizes through innovative technology.
+        </p>
+        <p>
+          We believe that compliance shouldn't be a burden but rather an opportunity to strengthen your business 
+          practices. Our team of experts combines decades of experience in regulatory compliance with cutting-edge 
+          AI technology to create intuitive, powerful solutions that transform how businesses approach compliance.
+        </p>
+      </section>
+
+      <section class="mission-section">
+        <h2>Our Mission</h2>
+        <p>
+          At KAiM Systems, our mission is to democratize access to compliance expertise through intelligent 
+          technology. We aim to reduce the complexity and cost of regulatory compliance while enhancing 
+          the security posture of our clients.
+        </p>
+        <h2>Our Vision</h2>
+        <p>
+          We envision a future where businesses of all sizes can navigate the complex landscape of 
+          regulatory compliance with confidence and ease, allowing them to focus on innovation and growth 
+          rather than administrative burdens.
+        </p>
+      </section>
+
+      <h2>Our Leadership Team</h2>
+      <div class="team-section">
+        <div class="team-member">
+          <img src="https://via.placeholder.com/150" alt="Sarah Johnson">
+          <h3>Sarah Johnson</h3>
+          <p class="role">CEO & Co-Founder</p>
+          <p>
+            With over 15 years of experience in regulatory compliance and risk management, 
+            Sarah leads our company's strategic vision and operations.
+          </p>
+        </div>
+
+        <div class="team-member">
+          <img src="https://via.placeholder.com/150" alt="Michael Chen">
+          <h3>Michael Chen</h3>
+          <p class="role">CTO & Co-Founder</p>
+          <p>
+            Michael brings extensive expertise in AI and machine learning, 
+            directing our product development and technological innovation.
+          </p>
+        </div>
+
+        <div class="team-member">
+          <img src="https://via.placeholder.com/150" alt="Robert Evans">
+          <h3>Robert Evans</h3>
+          <p class="role">Chief Compliance Officer</p>
+          <p>
+            Robert's background in regulatory law ensures our solutions 
+            address the most critical compliance challenges facing businesses today.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="KAiM Systems - Our Services" />
+    <title>KAiM Systems - Services</title>
+    <!-- Material UI Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .navbar {
+        background-color: #1976d2;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links a.active {
+        font-weight: bold;
+        border-bottom: 2px solid white;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .services-header {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .services-header h1 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+      }
+      .service-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      }
+      .service-icon {
+        margin-bottom: 1rem;
+        color: #1976d2;
+        font-size: 48px;
+      }
+      .service-card h3 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .cta-section {
+        background-color: #e3f2fd;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-top: 2rem;
+        text-align: center;
+      }
+      .cta-section h2 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+        margin-top: 1rem;
+      }
+      .button:hover {
+        background-color: #1565c0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">KAiM Systems</div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html" class="active">Services</a>
+        <a href="products.html">Products</a>
+        <a href="compliance-assistant.html">Compliance Assistant</a>
+        <a href="compliance-guide.html">Assistant Guide</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <section class="services-header">
+        <h1>Our Services</h1>
+        <p>
+          KAiM Systems offers a comprehensive suite of AI-powered solutions designed to simplify regulatory 
+          compliance, enhance risk management, and provide valuable business intelligence. Our services 
+          are tailored to meet the specific needs of your organization, regardless of size or industry.
+        </p>
+      </section>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">
+            <span class="material-icons">security</span>
+          </div>
+          <h3>Compliance Management</h3>
+          <p>
+            Our AI-powered compliance management solutions help you navigate complex regulatory 
+            requirements with ease. We provide real-time monitoring, automated assessments, and 
+            actionable insights to ensure your organization remains compliant with relevant standards.
+          </p>
+          <ul>
+            <li>Regulatory framework mapping</li>
+            <li>Compliance gap analysis</li>
+            <li>Automated compliance reporting</li>
+            <li>Continuous monitoring and alerts</li>
+          </ul>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <span class="material-icons">assessment</span>
+          </div>
+          <h3>Risk Assessment</h3>
+          <p>
+            Identify, evaluate, and mitigate potential risks with our advanced risk assessment 
+            platform. Our AI algorithms analyze your business operations to pinpoint vulnerabilities 
+            and recommend effective risk management strategies.
+          </p>
+          <ul>
+            <li>Comprehensive risk identification</li>
+            <li>Probability and impact analysis</li>
+            <li>Risk mitigation recommendations</li>
+            <li>Scenario modeling and stress testing</li>
+          </ul>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <span class="material-icons">chat</span>
+          </div>
+          <h3>Compliance Assistant</h3>
+          <p>
+            Our AI-powered Compliance Assistant provides instant answers to your compliance-related 
+            questions. Access expert knowledge on standards such as NIST 800.53, COBIT, SOX, and GDPR 
+            through an intuitive chat interface.
+          </p>
+          <ul>
+            <li>24/7 access to compliance expertise</li>
+            <li>Multi-standard knowledge base</li>
+            <li>Context-aware responses</li>
+            <li>Regular updates to reflect regulatory changes</li>
+          </ul>
+          <a href="compliance-assistant.html" class="button">Try the Assistant</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <span class="material-icons">analytics</span>
+          </div>
+          <h3>Business Intelligence</h3>
+          <p>
+            Transform your compliance and risk data into strategic business insights. Our analytics 
+            platform helps you visualize trends, identify patterns, and make data-driven decisions to 
+            optimize your operations.
+          </p>
+          <ul>
+            <li>Custom dashboard creation</li>
+            <li>Advanced data visualization</li>
+            <li>Predictive analytics</li>
+            <li>Benchmark comparisons</li>
+          </ul>
+        </div>
+      </div>
+
+      <section class="cta-section">
+        <h2>Ready to Transform Your Compliance Strategy?</h2>
+        <p>
+          Contact us today to learn how KAiM Systems can help your organization simplify compliance, 
+          reduce risk, and gain valuable business insights.
+        </p>
+        <a href="compliance-assistant.html" class="button">Try Our Compliance Assistant</a>
+      </section>
+    </div>
+  </body>
+</html>

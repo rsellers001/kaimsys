@@ -3,8 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const Redis = require('redis');
-const { OpenAI } = require('openai');
 const { body, validationResult } = require('express-validator');
+const assistantService = require('./assistantService');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -31,10 +31,7 @@ if (process.env.REDIS_URL) {
   }
 }
 
-// OpenAI setup
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Using Assistant Service which has OpenAI setup inside
 
 // Middleware
 app.use(cors());
@@ -75,33 +72,23 @@ const validateChatRequest = [
   body('secondaryStandard').optional(),
 ];
 
-// Chat endpoint
+// Chat endpoint using the OpenAI Assistant API
 app.post('/api/chat', validateChatRequest, cacheMiddleware, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { message, primaryStandard, secondaryStandard } = req.body;
+  const { message, primaryStandard, secondaryStandard, threadId } = req.body;
 
   try {
-    const systemPrompt = `You are a knowledgeable compliance expert. Focus primarily on ${primaryStandard}${
-      secondaryStandard ? ` and relate it to ${secondaryStandard} where relevant` : ''
-    }. Provide accurate, clear, and concise answers about compliance requirements, controls, and best practices. Always cite specific standards and controls.`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
-
+    // Use the assistantService to handle the chat
+    const result = await assistantService.chat(message, primaryStandard, secondaryStandard, threadId);
+    
     const response = {
-      response: completion.choices[0].message.content,
+      response: result.message.content[0].text.value,
       timestamp: new Date(),
+      threadId: result.threadId // Return threadId for continuity in conversation
     };
 
     // Cache the response if Redis is enabled
@@ -118,7 +105,7 @@ app.post('/api/chat', validateChatRequest, cacheMiddleware, async (req, res) => 
 
     res.json(response);
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('Assistant API Error:', error);
     res.status(500).json({ error: 'An error occurred while processing your request' });
   }
 });
