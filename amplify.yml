@@ -8,3 +8,15 @@ frontend:
     baseDirectory: public
     files:
       - '**/*'
+
+backend:
+  phases:
+    build:
+      commands:
+        - echo "Installing Node.js dependencies for backend..."
+        - cd server
+        - npm install
+        - echo "Setting up environment variables..."
+        - echo "PORT=3001" >> .env
+        - echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+        - echo "Backend build completed successfully"
