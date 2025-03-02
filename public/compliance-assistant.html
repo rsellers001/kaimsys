@@ -274,27 +274,21 @@
       }
 
       // Event listeners
-      sendButton.addEventListener('click', handleSend);
-      messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          handleSend();
-        }
-      });
-
-      primaryStandardSelect.addEventListener('change', function() {
-        if (this.value === secondaryStandardSelect.value && this.value !== '') {
-          secondaryStandardSelect.value = '';
-        }
-        updateSendButtonState();
-      });
-
-      secondaryStandardSelect.addEventListener('change', function() {
-        if (this.value === primaryStandardSelect.value && this.value !== '') {
-          primaryStandardSelect.value = '';
-        }
-        updateSendButtonState();
-      });
+      if (sendButton) {
+        sendButton.addEventListener('click', handleSend);
+      }
+      
+      if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+          }
+        });
+        
+        // Add input event to dynamically update button state
+        messageInput.addEventListener('input', updateSendButtonState);
+      }
 
       stars.forEach(star => {
         star.addEventListener('click', function() {
@@ -337,8 +331,10 @@
 
         try {
           // Update server status
-          serverStatus.className = 'server-status warning';
-          serverStatus.textContent = '⚠️ Connecting to server...';
+          if (serverStatus) {
+            serverStatus.className = 'server-status warning';
+            serverStatus.textContent = '⚠️ Connecting to server...';
+          }
           
           // Check if simulation mode is enabled
           if (simulationMode) {
@@ -346,8 +342,10 @@
             await new Promise(resolve => setTimeout(resolve, 1500));
             
             // Update status to indicate simulation mode
-            serverStatus.className = 'server-status warning';
-            serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
+            if (serverStatus) {
+              serverStatus.className = 'server-status warning';
+              serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
+            }
             
             // Generate a simulated response
             const simulatedResponse = generateSimulatedResponse(input);
@@ -394,8 +392,10 @@
           }
           
           // Update server status to success
-          serverStatus.className = 'server-status success';
-          serverStatus.textContent = '✅ Connected to server';
+          if (serverStatus) {
+            serverStatus.className = 'server-status success';
+            serverStatus.textContent = '✅ Connected to server';
+          }
           
 
           const data = await response.json();
@@ -424,9 +424,11 @@
           console.error('Error calling assistant API:', error);
           
           // Update server status to error
-          const serverStatus = document.getElementById('serverStatus');
-          serverStatus.className = 'server-status error';
-          serverStatus.textContent = '❌ Server connection error: ' + error.message;
+          const serverStatusElement = document.getElementById('serverStatus');
+          if (serverStatusElement) {
+            serverStatusElement.className = 'server-status error';
+            serverStatusElement.textContent = '❌ Server connection error: ' + error.message;
+          }
           
           // Handle error gracefully with a fallback response
           const aiMessage = {
@@ -509,7 +511,16 @@
       }
 
       function updateSendButtonState() {
-        sendButton.disabled = !messageInput.value.trim();
+        if (sendButton && messageInput) {
+          sendButton.disabled = !messageInput.value.trim();
+          
+          // Visual indication of button state
+          if (!messageInput.value.trim()) {
+            sendButton.classList.add('disabled');
+          } else {
+            sendButton.classList.remove('disabled');
+          }
+        }
       }
 
       // Initialize send button state
@@ -541,8 +552,10 @@
       }
       
       // Update server status to indicate simulation mode
-      serverStatus.className = 'server-status warning';
-      serverStatus.textContent = '⚠️ Assistant is running in simulation mode (server not available)';
+      if (serverStatus) {
+        serverStatus.className = 'server-status warning';
+        serverStatus.textContent = '⚠️ Assistant is running in simulation mode (server not available)';
+      }
     </script>
   </body>
 </html>
