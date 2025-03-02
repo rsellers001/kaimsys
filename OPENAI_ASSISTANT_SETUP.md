@@ -4,7 +4,7 @@ This guide explains how to set up and configure the OpenAI Assistant for the KAi
 
 ## Assistant Configuration
 
-The website now uses OpenAI Assistant ID: `asst_dpRr7Xj66ivUtIChztNiW7mV`
+The website now uses OpenAI Assistant ID: `asst_mdHmmLAhyOprNvM3MhX6Tm6K`
 
 ### What's Been Changed
 
@@ -12,10 +12,12 @@ The website now uses OpenAI Assistant ID: `asst_dpRr7Xj66ivUtIChztNiW7mV`
    - Created `assistantService.js` - A service module that handles interactions with the OpenAI Assistant API
    - Updated `server.js` - Modified to use the Assistant API instead of the Chat Completions API
    - Added conversation threading support to maintain context across chat sessions
+   - Removed the requirement for specifying primary and secondary standards
 
 2. **Client-side Changes**:
    - Updated `compliance-assistant.html` - Modified to call the server API and handle Assistant responses
    - Added thread ID tracking to maintain conversation context
+   - Removed the standard selection UI - users can now directly ask about any compliance standard
 
 ## Configuration Steps
 

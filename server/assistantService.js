@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 // Define the assistant ID
-const ASSISTANT_ID = 'asst_dpRr7Xj66ivUtIChztNiW7mV';
+const ASSISTANT_ID = 'asst_mdHmmLAhyOprNvM3MhX6Tm6K';
 
 // Helper functions for working with the assistant
 const assistantService = {
@@ -37,11 +37,10 @@ const assistantService = {
   },
 
   // Run the assistant on a thread
-  async runAssistant(threadId, instructions = '') {
+  async runAssistant(threadId) {
     try {
       const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: ASSISTANT_ID,
-        instructions
+        assistant_id: ASSISTANT_ID
       });
       return run.id;
     } catch (error) {
@@ -94,26 +93,18 @@ const assistantService = {
   },
 
   // Complete helper function for chat
-  async chat(message, primaryStandard, secondaryStandard, threadId = null) {
+  async chat(message, threadId = null) {
     try {
       // Create a new thread if not provided
       if (!threadId) {
         threadId = await this.createThread();
       }
 
-      // Build system instructions based on standards
-      const instructions = `You are a knowledgeable compliance expert. Focus primarily on ${primaryStandard}${
-        secondaryStandard ? ` and relate it to ${secondaryStandard} where relevant` : ''
-      }. Provide accurate, clear, and concise answers about compliance requirements, controls, and best practices. Always cite specific standards and controls.`;
-      
       // Add message to thread
-      await this.addMessage(threadId, message, {
-        primaryStandard,
-        secondaryStandard: secondaryStandard || null
-      });
+      await this.addMessage(threadId, message);
       
-      // Run the assistant
-      const runId = await this.runAssistant(threadId, instructions);
+      // Run the assistant (no special instructions needed as the assistant is pre-configured)
+      const runId = await this.runAssistant(threadId);
       
       // Wait for completion
       await this.waitForCompletion(threadId, runId);

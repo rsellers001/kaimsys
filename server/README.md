@@ -11,7 +11,7 @@ This server provides the backend API for the KAiM Systems Compliance Assistant, 
 
 ## OpenAI Assistant
 
-The backend uses OpenAI's Assistant API with assistant ID: `asst_dpRr7Xj66ivUtIChztNiW7mV`.
+The backend uses OpenAI's Assistant API with assistant ID: `asst_mdHmmLAhyOprNvM3MhX6Tm6K`.
 
 ### API Endpoints
 
@@ -19,8 +19,6 @@ The backend uses OpenAI's Assistant API with assistant ID: `asst_dpRr7Xj66ivUtIC
   - Handles conversations with the OpenAI Assistant
   - Parameters:
     - `message`: The user's message
-    - `primaryStandard`: The primary compliance standard selected (e.g., "NIST 800.53")
-    - `secondaryStandard`: (Optional) A secondary standard to compare with
     - `threadId`: (Optional) For continuing previous conversations
 
 - **POST /api/feedback**

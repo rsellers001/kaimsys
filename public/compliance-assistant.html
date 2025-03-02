@@ -53,24 +53,18 @@
         padding: 1.5rem;
         margin-bottom: 2rem;
       }
-      .standards-select {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
+      .assistant-description {
+        background-color: #f5f9ff;
+        border-left: 4px solid #1976d2;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 4px 4px 0;
       }
-      .select-group {
-        flex: 1;
-      }
-      .select-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-      }
-      .select-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+      .assistant-description p {
+        margin: 0;
+        color: #333;
+        font-size: 1rem;
+        line-height: 1.5;
       }
       .chat-history {
         height: 400px;
@@ -103,10 +97,7 @@
       .assistant-message .message-sender {
         color: #388e3c;
       }
-      .message-standards {
-        font-size: 0.8rem;
-        color: #757575;
-      }
+
       .message-content {
         white-space: pre-wrap;
       }
@@ -202,28 +193,8 @@
       <p style="text-align: center; margin-bottom: 20px;">Need help? <a href="compliance-guide.html">Check out our guide</a> for instructions on using this assistant.</p>
       
       <div class="chat-container">
-        <div class="standards-select">
-          <div class="select-group">
-            <label for="primary-standard">Primary Standard</label>
-            <select id="primary-standard">
-              <option value="">Select a standard</option>
-              <option value="nist">NIST 800.53</option>
-              <option value="cobit">COBIT</option>
-              <option value="sox">SOX</option>
-              <option value="gdpr">GDPR</option>
-            </select>
-          </div>
-          
-          <div class="select-group">
-            <label for="secondary-standard">Secondary Standard (Optional)</label>
-            <select id="secondary-standard">
-              <option value="">None</option>
-              <option value="nist">NIST 800.53</option>
-              <option value="cobit">COBIT</option>
-              <option value="sox">SOX</option>
-              <option value="gdpr">GDPR</option>
-            </select>
-          </div>
+        <div class="assistant-description">
+          <p>Ask our AI assistant any questions about compliance standards, regulations, best practices, and implementation guidance.</p>
         </div>
         
         <div id="error-message" class="error-message hidden"></div>
@@ -256,53 +227,7 @@
     </div>
 
     <script>
-      // Standard information
-      const STANDARD_INFO = {
-        nist: {
-          title: "NIST 800.53",
-          description: "Provides security and privacy controls for federal information systems and organizations.",
-          responses: [
-            "NIST 800.53 organizes security controls into 20 families, each focused on a specific aspect of security.",
-            "Access Control (AC) in NIST 800.53 focuses on limiting system access to authorized users and processes.",
-            "Audit and Accountability (AU) controls ensure that actions within systems can be traced to individuals.",
-            "Configuration Management (CM) establishes baseline configurations and inventories of systems."
-          ]
-        },
-        cobit: {
-          title: "COBIT",
-          description: "A framework created by ISACA for IT governance and management.",
-          responses: [
-            "COBIT 2019 is organized around 40 governance and management objectives.",
-            "COBIT helps organizations optimize information and technology governance.",
-            "The COBIT framework addresses the governance and management of information and technology.",
-            "COBIT provides metrics and maturity models to measure the achievement of IT governance objectives."
-          ]
-        },
-        sox: {
-          title: "SOX",
-          description: "The Sarbanes-Oxley Act regulates financial practice and corporate governance.",
-          responses: [
-            "SOX Section 404 requires management to assess internal controls over financial reporting.",
-            "SOX was enacted in 2002 to protect investors from fraudulent financial reporting.",
-            "SOX compliance requires establishing internal controls and reporting procedures.",
-            "The Public Company Accounting Oversight Board (PCAOB) oversees SOX implementation."
-          ]
-        },
-        gdpr: {
-          title: "GDPR",
-          description: "EU regulation on data protection and privacy for individuals within the EU.",
-          responses: [
-            "GDPR gives individuals control over their personal data through various rights.",
-            "GDPR requires organizations to implement privacy by design and by default.",
-            "Organizations must report data breaches within 72 hours under GDPR.",
-            "GDPR fines can reach up to 4% of annual global turnover or €20 million, whichever is higher."
-          ]
-        }
-      };
-
       // DOM elements
-      const primaryStandardSelect = document.getElementById('primary-standard');
-      const secondaryStandardSelect = document.getElementById('secondary-standard');
       const messageInput = document.getElementById('message-input');
       const sendButton = document.getElementById('send-button');
       const chatHistory = document.getElementById('chat-history');
@@ -358,27 +283,18 @@
 
       async function handleSend() {
         const input = messageInput.value.trim();
-        const primaryStandard = primaryStandardSelect.value;
 
-        if (!input || !primaryStandard) {
-          errorMessage.textContent = 'Please enter a message and select a primary standard';
+        if (!input) {
+          errorMessage.textContent = 'Please enter a message';
           errorMessage.classList.remove('hidden');
           return;
         }
 
         errorMessage.classList.add('hidden');
-
-        const secondaryStandard = secondaryStandardSelect.value;
-        const standardPrimaryTitle = STANDARD_INFO[primaryStandard] ? STANDARD_INFO[primaryStandard].title : primaryStandard;
-        const standardSecondaryTitle = secondaryStandard && STANDARD_INFO[secondaryStandard] ? STANDARD_INFO[secondaryStandard].title : secondaryStandard;
         
         const userMessage = {
           role: 'user',
           content: input,
-          standards: {
-            primary: standardPrimaryTitle,
-            secondary: secondaryStandard ? standardSecondaryTitle : null
-          },
           timestamp: new Date().toISOString()
         };
 
@@ -402,8 +318,6 @@
             },
             body: JSON.stringify({
               message: input,
-              primaryStandard: standardPrimaryTitle,
-              secondaryStandard: secondaryStandard ? standardSecondaryTitle : '',
               threadId: currentThreadId // Pass thread ID for conversation continuity
             }),
           });
@@ -439,9 +353,7 @@
           // Handle error gracefully with a fallback response
           const aiMessage = {
             role: 'assistant',
-            content: 'I apologize, but I encountered an issue processing your request about ' + 
-                     (STANDARD_INFO[primaryStandard] ? STANDARD_INFO[primaryStandard].title : 'this standard') + 
-                     '. Please try again or select a different standard. Error details: ' + error.message,
+            content: 'I apologize, but I encountered an issue processing your request. Please try again. Error details: ' + error.message,
             timestamp: new Date().toISOString()
           };
           messages.push(aiMessage);
@@ -489,16 +401,7 @@
             
             headerEl.appendChild(senderEl);
             
-            if (message.standards) {
-              const standardsEl = document.createElement('div');
-              standardsEl.classList.add('message-standards');
-              let standardsText = message.standards.primary || ''; 
-              if (message.standards.secondary) {
-                standardsText += ` & ${message.standards.secondary}`;
-              }
-              standardsEl.textContent = standardsText;
-              headerEl.appendChild(standardsEl);
-            }
+            // Standards section removed
             
             const contentEl = document.createElement('div');
             contentEl.classList.add('message-content');
@@ -528,7 +431,7 @@
       }
 
       function updateSendButtonState() {
-        sendButton.disabled = !messageInput.value.trim() || !primaryStandardSelect.value;
+        sendButton.disabled = !messageInput.value.trim();
       }
 
       // Initialize send button state

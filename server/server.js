@@ -68,8 +68,7 @@ const cacheMiddleware = async (req, res, next) => {
 // Validation middleware
 const validateChatRequest = [
   body('message').notEmpty().trim(),
-  body('primaryStandard').notEmpty(),
-  body('secondaryStandard').optional(),
+  body('threadId').optional(),
 ];
 
 // Chat endpoint using the OpenAI Assistant API
@@ -79,11 +78,11 @@ app.post('/api/chat', validateChatRequest, cacheMiddleware, async (req, res) => 
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { message, primaryStandard, secondaryStandard, threadId } = req.body;
+  const { message, threadId } = req.body;
 
   try {
     // Use the assistantService to handle the chat
-    const result = await assistantService.chat(message, primaryStandard, secondaryStandard, threadId);
+    const result = await assistantService.chat(message, threadId);
     
     const response = {
       response: result.message.content[0].text.value,
