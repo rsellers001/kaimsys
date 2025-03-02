@@ -250,6 +250,7 @@
     <script>
       // Global variables
       let simulationMode = true; // Set to false once the backend server is fully deployed
+      console.log('Simulation mode enabled:', simulationMode); // Debug information
       let currentThreadId = null;
       
       // DOM elements
@@ -302,78 +303,86 @@
       let currentThreadId = null;
 
       async function handleSend() {
-        const input = messageInput.value.trim();
-
-        if (!input) {
-          errorMessage.textContent = 'Please enter a message';
-          errorMessage.classList.remove('hidden');
-          return;
-        }
-
-        errorMessage.classList.add('hidden');
-        
-        const userMessage = {
-          role: 'user',
-          content: input,
-          timestamp: new Date().toISOString()
-        };
-
-        messages.push(userMessage);
-        messageInput.value = '';
-        updateSendButtonState();
-        renderChatHistory();
-
-        // Show loading state
-        sendButton.disabled = true;
-        if (sendButton) {
-          sendButton.innerHTML = '<div class="loading-spinner"></div>';
-        }
-
         try {
+          const input = messageInput.value.trim();
+          
+          if (!input) {
+            if (errorMessage) {
+              errorMessage.textContent = 'Please enter a message';
+              errorMessage.classList.remove('hidden');
+            }
+            return;
+          }
+          
+          if (errorMessage) {
+            errorMessage.classList.add('hidden');
+          }
+          
+          const userMessage = {
+            role: 'user',
+            content: input,
+            timestamp: new Date().toISOString()
+          };
+          
+          messages.push(userMessage);
+          if (messageInput) {
+            messageInput.value = '';
+          }
+          updateSendButtonState();
+          renderChatHistory();
+          
+          // Show loading state
+          if (sendButton) {
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<div class="loading-spinner"></div>';
+          }
+          
           // Update server status
           if (serverStatus) {
             serverStatus.className = 'server-status warning';
             serverStatus.textContent = '⚠️ Connecting to server...';
           }
           
-          // Check if simulation mode is enabled
-          if (simulationMode) {
-            // Simulate a server response with a delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Update status to indicate simulation mode
-            if (serverStatus) {
-              serverStatus.className = 'server-status warning';
-              serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
-            }
-            
-            // Generate a simulated response
-            const simulatedResponse = generateSimulatedResponse(input);
-            
-            // Add the AI response
-            const aiMessage = {
-              role: 'assistant',
-              content: simulatedResponse,
-              timestamp: new Date().toISOString()
-            };
-            
-            messages.push(aiMessage);
-            
-            // Save to localStorage
-            try {
-              localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
-            } catch (e) {
-              console.error('Error saving chat history:', e);
-            }
-            
-            renderChatHistory();
-            if (sendButton) {
-              sendButton.disabled = false;
-              sendButton.innerHTML = '<span class="material-icons">send</span>';
-            }
-            
-            return;
+          console.log('Running in simulation mode:', simulationMode); // Debug
+          
+          // Always use simulation mode for now
+          // Simulate a server response with a delay
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Update status to indicate simulation mode
+          if (serverStatus) {
+            serverStatus.className = 'server-status warning';
+            serverStatus.textContent = '⚠️ Using simulation mode (server not available)';
           }
+          
+          // Generate a simulated response
+          const simulatedResponse = generateSimulatedResponse(input);
+          console.log('Generated simulated response:', simulatedResponse.substring(0, 50) + '...'); // Debug
+          
+          // Add the AI response
+          const aiMessage = {
+            role: 'assistant',
+            content: simulatedResponse,
+            timestamp: new Date().toISOString()
+          };
+          
+          messages.push(aiMessage);
+          
+          // Save to localStorage
+          try {
+            localStorage.setItem('complianceChatHistory', JSON.stringify(messages));
+          } catch (e) {
+            console.error('Error saving chat history:', e);
+          }
+          
+          renderChatHistory();
+          if (sendButton) {
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<span class="material-icons">send</span>';
+          }
+          
+          // Skip the API call entirely
+          return;
           
           // If not in simulation mode, try to call the real backend API
           const response = await fetch('/api/chat', {
